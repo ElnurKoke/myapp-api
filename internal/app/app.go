@@ -26,7 +26,7 @@ func Run(cfg *config.Config) {
 
 	repository := repository.NewRepository(db)
 
-	service := service.NewService(repository)
+	service := service.NewService(repository, cfg)
 
 	handler := handler.NewHandler(service)
 

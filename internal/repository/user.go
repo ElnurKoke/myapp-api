@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, user model.User) (int, error)
+	CreateUser(ctx context.Context, user model.RegisterRequest) error
 	UpdateUser(ctx context.Context, user model.User) error
 	DeleteUser(ctx context.Context, user model.User) error
 
@@ -27,23 +27,22 @@ func NewUser(db *pgxpool.Pool) *userRepo {
 	}
 }
 
-func (r *userRepo) CreateUser(ctx context.Context, user model.User) (int, error) {
+func (r *userRepo) CreateUser(ctx context.Context, user model.RegisterRequest) error {
 	query := `
 		INSERT INTO users (name, email, password, created_at, updated_at)
 		VALUES ($1, $2, $3, NOW(), NOW())
 		RETURNING id
 	`
-	var id int
 	err := r.db.QueryRow(ctx, query,
 		user.Name,
 		user.Email,
 		user.Password,
-	).Scan(&id)
+	)
 	if err != nil {
-		return 0, fmt.Errorf("CreateUser failed: %w", err)
+		return fmt.Errorf("CreateUser failed: %w", err)
 	}
 
-	return user.ID, nil
+	return nil
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, user model.User) error {
