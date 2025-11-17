@@ -32,7 +32,7 @@ func Run(cfg *config.Config) {
 
 	server := new(server.Server)
 
-	if err := server.Run(":8080", handler.InitRoutes()); err != nil {
+	if err := server.Run(cfg.HTTP.Port, handler.InitRoutes()); err != nil {
 		log.Fatalf("Error running server: %s\n", err)
 	}
 }

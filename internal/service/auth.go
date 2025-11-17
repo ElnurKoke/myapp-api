@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"elestial/config"
+	"elestial/internal/apperror"
 	"elestial/internal/repository"
 	"elestial/model"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 )
@@ -13,6 +15,7 @@ import (
 type AuthService interface {
 	Register(ctx context.Context, user model.RegisterRequest) error
 	Login(ctx context.Context, user model.User) (model.TokenPair, error)
+	Logout(ctx context.Context, token string) error
 
 	GenerateRefreshToken(userID int) (string, error)
 	GenerateAccessToken(userID int) (string, error)
@@ -58,7 +61,7 @@ func (a *authService) Login(ctx context.Context, user model.User) (model.TokenPa
 		return model.TokenPair{}, err
 	}
 	if !checkPasswordHash(user.Password, u.Password) {
-		return model.TokenPair{}, errors.New(" Wrong password ")
+		return model.TokenPair{}, apperror.ErrWrongPassword
 	}
 
 	access, err := a.GenerateAccessToken(u.ID)
@@ -72,4 +75,26 @@ func (a *authService) Login(ctx context.Context, user model.User) (model.TokenPa
 	expired := time.Now().Add(7 * 24 * time.Hour)
 	a.AuthRepo.SaveRefreshToken(ctx, u.ID, refresh, expired)
 	return model.TokenPair{Access: access, Refresh: refresh}, nil
+}
+
+func (a *authService) Logout(ctx context.Context, refresh string) error {
+	_, err := a.ParseToken(refresh, []byte(a.cfg.JWT.RefreshSecret))
+	if err != nil {
+		return err
+	}
+
+	rt, err := a.AuthRepo.GetRefreshToken(ctx, refresh)
+	if err != nil {
+		return err
+	}
+
+	if rt.Revoked {
+		return errors.New("refresh token already revoked")
+	}
+
+	if err := a.AuthRepo.RevokeRefreshToken(ctx, rt.ID); err != nil {
+		return fmt.Errorf("failed to revoke refresh token: %w", err)
+	}
+
+	return nil
 }
