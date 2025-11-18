@@ -2,6 +2,8 @@ package db
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -9,8 +11,10 @@ import (
 )
 
 func RunMigrations(dbURL string) error {
+	cwd, _ := os.Getwd() // текущая рабочая директория
+	migrationsPath := fmt.Sprintf("file://%s", filepath.Join(cwd, "migrations"))
 	m, err := migrate.New(
-		"file://migrations",
+		migrationsPath,
 		dbURL,
 	)
 	if err != nil {

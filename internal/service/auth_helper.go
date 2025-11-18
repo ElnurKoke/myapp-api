@@ -20,7 +20,7 @@ func (a *authService) GenerateRefreshToken(userID int) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(a.cfg.JWT.RefreshSecret)
+	return token.SignedString([]byte(a.cfg.JWT.RefreshSecret))
 }
 
 func (a *authService) GenerateAccessToken(userID int) (string, error) {
@@ -32,7 +32,7 @@ func (a *authService) GenerateAccessToken(userID int) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(a.cfg.JWT.AccessSecret)
+	return token.SignedString([]byte(a.cfg.JWT.AccessSecret))
 }
 
 func (a *authService) ParseToken(tokenStr string, secret []byte) (*model.Claims, error) {

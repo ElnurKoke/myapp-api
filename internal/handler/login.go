@@ -29,6 +29,7 @@ func (h *Handler) login(c *gin.Context) {
 			return
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 	}
 

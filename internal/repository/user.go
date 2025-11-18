@@ -29,15 +29,16 @@ func NewUser(db *pgxpool.Pool) *userRepo {
 
 func (r *userRepo) CreateUser(ctx context.Context, user model.RegisterRequest) error {
 	query := `
-		INSERT INTO users (name, email, password, created_at, updated_at)
+		INSERT INTO users (name, email, password_hash, created_at, updated_at)
 		VALUES ($1, $2, $3, NOW(), NOW())
 		RETURNING id
 	`
+	var id int
 	err := r.db.QueryRow(ctx, query,
 		user.Name,
 		user.Email,
 		user.Password,
-	)
+	).Scan(&id)
 	if err != nil {
 		return fmt.Errorf("CreateUser failed: %w", err)
 	}
@@ -48,7 +49,7 @@ func (r *userRepo) CreateUser(ctx context.Context, user model.RegisterRequest) e
 func (r *userRepo) UpdateUser(ctx context.Context, user model.User) error {
 	query := `
 		UPDATE users
-		SET name=$1, email=$2, password=$3, updated_at=NOW()
+		SET name=$1, email=$2, password_hash=$3, updated_at=NOW()
 		WHERE id=$4
 	`
 	_, err := r.db.Exec(ctx, query,
@@ -75,7 +76,7 @@ func (r *userRepo) DeleteUser(ctx context.Context, user model.User) error {
 func (r *userRepo) GetUserById(ctx context.Context, userID int) (model.User, error) {
 	var user model.User
 	query := `
-		SELECT id, name, email, password,created_at, updated_at
+		SELECT id, name, email, password_hash,created_at, updated_at
 		FROM users
 		WHERE id=$1
 	`
@@ -97,7 +98,7 @@ func (r *userRepo) GetUserById(ctx context.Context, userID int) (model.User, err
 func (r *userRepo) GetUserByName(ctx context.Context, username string) (model.User, error) {
 	var user model.User
 	query := `
-		SELECT id, name, email, password, created_at, updated_at
+		SELECT id, name, email, password_hash, created_at, updated_at
 		FROM users
 		WHERE name=$1
 	`
