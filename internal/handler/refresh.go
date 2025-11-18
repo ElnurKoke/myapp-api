@@ -8,7 +8,6 @@ import (
 )
 
 func (h *Handler) refresh(c *gin.Context) {
-
 	var input model.TokenPair
 
 	if err := c.ShouldBindJSON(&input); err != nil {

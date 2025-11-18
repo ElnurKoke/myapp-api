@@ -14,11 +14,12 @@ type Handler struct {
 	Cfg     *config.Config
 }
 
-func NewHandler(services *service.Service) *Handler {
+func NewHandler(services *service.Service, cfg *config.Config) *Handler {
 	router := gin.Default()
 	return &Handler{
 		Router:  router,
 		Service: services,
+		Cfg:     cfg,
 	}
 }
 
