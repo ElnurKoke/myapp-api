@@ -1,9 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -12,13 +12,14 @@ type Server struct {
 }
 
 func (s *Server) Run(port int, handler http.Handler) error {
+	addr := fmt.Sprintf(":%d", port)
 	s.httpServer = &http.Server{
-		Addr:           ":" + strconv.Itoa(port),
+		Addr:           addr,
 		Handler:        handler,
 		MaxHeaderBytes: 1 << 20,
 		ReadTimeout:    14 * time.Second,
 		WriteTimeout:   14 * time.Second,
 	}
-	log.Printf("Server run on http://localhost%s", port)
+	log.Printf("Server run on http://localhost%s", addr)
 	return s.httpServer.ListenAndServe()
 }

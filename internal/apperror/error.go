@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrWrongPassword     = errors.New(" Wrong password ")
 	ErrUserExists        = errors.New("user already exists")
+	ErrUserNameExists    = errors.New("username exists")
 	ErrUserNotFound      = errors.New("user does not exist or password incorrect")
 	ErrInvalidUserName   = errors.New("invalid username - your username should consist at least 6 characters")
 	ErrInvalidEmail      = errors.New("invalid email")

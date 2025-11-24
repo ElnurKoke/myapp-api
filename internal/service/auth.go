@@ -8,7 +8,6 @@ import (
 	"elestial/model"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -42,14 +41,13 @@ func (a *authService) Register(ctx context.Context, user model.RegisterRequest) 
 	}
 
 	hashedPassword, err := hashPassword(user.Password)
-	user.Password = hashedPassword
 	if err != nil {
-		log.Fatal(err)
+		return errors.New(" failed to hash password! ")
 	}
+	user.Password = hashedPassword
 
-	//username check
 	if _, err := a.UserRepo.GetUserByName(ctx, user.Name); err == nil {
-		return errors.New(" Username exist! ")
+		return apperror.ErrUserNameExists
 	}
 
 	return a.UserRepo.CreateUser(ctx, user)

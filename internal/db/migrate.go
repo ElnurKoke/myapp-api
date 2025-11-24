@@ -11,7 +11,7 @@ import (
 )
 
 func RunMigrations(dbURL string) error {
-	cwd, _ := os.Getwd() // текущая рабочая директория
+	cwd, _ := os.Getwd()
 	migrationsPath := fmt.Sprintf("file://%s", filepath.Join(cwd, "migrations"))
 	m, err := migrate.New(
 		migrationsPath,
